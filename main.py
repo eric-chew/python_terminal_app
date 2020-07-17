@@ -4,7 +4,6 @@
 import time
 import random
 import pangrams
-from os import system
 from termcolor import colored, cprint
 
 # statics & data structures
@@ -20,9 +19,9 @@ TIMER_DELAY = 1
 MENU_ALIASES = {
     '1' : 'quickplay',
     'quickplay' : 'quickplay',
-    '3' : 'help',
+    '2' : 'help',
     'help' : 'help',
-    '4' : 'app_exit',
+    '3' : 'app_exit',
     'exit' : 'app_exit',
 }
 
@@ -99,6 +98,28 @@ def longer_len(str1, str2):
     else:
         return len(str2)
 
+def markup_scoring(correct, user):
+    adj_user = []
+    for cindex, char in enumerate(correct):
+        try:
+            if char == user[cindex]:
+                adj_user.append(colored(user[cindex], 'green', 'on_grey'))
+            else:
+                if user[cindex] == ' ':
+                    adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
+                else:
+                    adj_user.append(colored(user[cindex], 'red', 'on_grey', attrs = ['bold']))
+        except:
+            adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
+    if len(user) > len(correct):
+        for i in range(cindex + 1, len(user)):
+            if user[i] == ' ':
+                adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
+            else:
+                adj_user.append(colored(user[cindex], 'red', 'on_grey', attrs = ['bold']))
+    print('Given Sentence: ' + colored(correct, 'white', 'on_grey'))
+    print('What you wrote: ' + ''.join(adj_user))
+
 def quickplay():
     play = True
     tprint('quickplay activated.')
@@ -107,13 +128,12 @@ def quickplay():
         total_correct_chars = 0
         total_incorrect_chars = 0
         try:
-            sess_sentences = random.sample(pangrams.pangrams_test, GAMELENGTH)
+            sess_sentences = random.sample(pangrams.pangrams, GAMELENGTH)
         except:
-            sess_sentences = random.sample(pangrams.pangrams_test, len(pangrams.pangrams_test))
+            sess_sentences = random.sample(pangrams.pangrams, len(pangrams.pangrams))
         sess_len = len(sess_sentences)
         for sindex, sentence in enumerate(sess_sentences, 1):
-            if sindex < sess_len:
-                tinput(f'Press ENTER when ready')
+            tinput(f'Press ENTER when ready')
             countdown(COUNTDOWN_TIMER)
             seg_start = time.time()
             cprint(sentence, 'white', 'on_grey')
@@ -138,6 +158,9 @@ def quickplay():
             total_time_sec += seg_time
             total_correct_chars += sentence_correct_chars
             total_incorrect_chars += sentence_incorrect_chars
+            markup_scoring(sentence, user_type)
+            if sindex == sess_len:
+                tinput(f'Press ENTER to continue to results')
         total_time_min = total_time_sec / 60
         cpm = total_correct_chars / total_time_min
         wpm = cpm / CPW
@@ -157,16 +180,17 @@ def quickplay():
                 tprint('Sorry, I didn\'t understand. Could you rephrase that?')
 
 def mm_msg():
-    tprint(
-f'''Reminder that your available commands are:
+    tprint_float(
+f'''This is the main menu
+Reminder that your available commands are:
 1. Quickplay: A quick test using from a pre-defined list of sentences
-2. TBI
-3. Help: An explanation of the different menu options
-4. Exit: Exits program
+2. Help: An explanation of the different menu options
+3. Exit: Exits program
 ''')
 
 def help():
     tprint('printing help message.')
+    tinput('Press ENTER to return to the main menu')
 
 def app_exit():
     tprint('Thanks for playing!')
