@@ -17,3 +17,9 @@ pangrams = [
     'Just poets wax boldly as kings and queens march over fuzz',
     'Few black taxis drive up major roads on quiet hazy nights'
 ]
+
+pangrams_test = ['123',
+    '1234',
+    '12345',
+    '123456'
+]
