@@ -1,4 +1,4 @@
-#/usr/sbin/python
+#!/usr/sbin/python
 
 # imports & modules
 import time
@@ -98,7 +98,7 @@ def longer_len(str1, str2):
     else:
         return len(str2)
 
-def markup_scoring(correct, user):
+def markup_scoring(correct, user, num_incorrect):
     adj_user = []
     for cindex, char in enumerate(correct):
         try:
@@ -116,13 +116,13 @@ def markup_scoring(correct, user):
             if user[i] == ' ':
                 adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
             else:
-                adj_user.append(colored(user[cindex], 'red', 'on_grey', attrs = ['bold']))
+                adj_user.append(colored(user[i], 'red', 'on_grey', attrs = ['bold']))
     print('Given Sentence: ' + colored(correct, 'white', 'on_grey'))
     print('What you wrote: ' + ''.join(adj_user))
 
 def quickplay():
     play = True
-    tprint('quickplay activated.')
+    tprint('Let\s Play!')
     while play:
         total_time_sec = 0
         total_correct_chars = 0
@@ -158,7 +158,8 @@ def quickplay():
             total_time_sec += seg_time
             total_correct_chars += sentence_correct_chars
             total_incorrect_chars += sentence_incorrect_chars
-            markup_scoring(sentence, user_type)
+            if sentence_incorrect_chars > 0:
+                markup_scoring(sentence, user_type)
             if sindex == sess_len:
                 tinput(f'Press ENTER to continue to results')
         total_time_min = total_time_sec / 60
@@ -189,7 +190,7 @@ Reminder that your available commands are:
 ''')
 
 def help():
-    tprint('printing help message.')
+    tprint('')
     tinput('Press ENTER to return to the main menu')
 
 def app_exit():
