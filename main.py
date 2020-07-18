@@ -3,18 +3,21 @@
 # imports & modules
 import time
 import random
+import sys
 import pangrams
 from termcolor import colored, cprint
 
 # statics & data structures
 APPNAME = 'Terminal Typing Test'
-GAMELENGTH = 3
+GAMELENGTH = 5
 COUNTDOWN_TIMER = 3
 COUNTDOWN_MSG = 'GO!'
 SPEECH_DELAY = 0.02
 PAUSE_DELAY = 0.75
 CPW = 5 # Characters per word
 TIMER_DELAY = 1
+
+SENTENCE_LIST = pangrams.pangrams
 
 MENU_ALIASES = {
     '1' : 'quickplay',
@@ -25,6 +28,7 @@ MENU_ALIASES = {
     'exit' : 'app_exit',
 }
 
+# End of Game Aliases
 EOG_ALIASES = {
     '1' : True,
     '1. play again' : True,
@@ -38,9 +42,11 @@ EOG_ALIASES = {
     'menu' : False
 }
 
+# Punctuation the terminal will pause at
 EOL_PUNCT = {'.', '!', '?', '\n'}
 
 # function definitions
+# 'Talking' Print, prints with delay
 def tprint(str):
     for i in str:
         cprint(i, 'yellow', 'on_grey', end = '', flush = True)
@@ -50,6 +56,7 @@ def tprint(str):
             time.sleep(SPEECH_DELAY)
     print('')
 
+# 'Talking' Input
 def tinput(str):
     for i in str:
         cprint(i, 'cyan', 'on_grey', end = '', flush = True)
@@ -60,6 +67,7 @@ def tinput(str):
     user_input = input('')
     return user_input
 
+# Variation of input that adds ellipses with a longer delay at the end
 def thinking(str, num):
     for i in str:
         cprint(i, 'yellow', 'on_grey', end = '', flush = True)
@@ -72,6 +80,7 @@ def thinking(str, num):
         time.sleep(PAUSE_DELAY)
     print('')
 
+# Variation of tprint that doesn't do a long pause at periods (to avoid stops in floating point numbers)
 def tprint_float(str):
     for i in str:
         cprint(i, 'yellow', 'on_grey', end = '', flush = True)
@@ -81,9 +90,11 @@ def tprint_float(str):
             time.sleep(SPEECH_DELAY)
     print('')
 
+# Print Welcome message
 def welcome_msg():
     tprint(f'Welcome! My name is {APPNAME}!')
 
+# Prints count down from timer
 def countdown(timer):
     tprint(f'Get ready for the next sentence in {timer} seconds!')
     time.sleep(PAUSE_DELAY)
@@ -92,45 +103,56 @@ def countdown(timer):
         time.sleep(TIMER_DELAY)
     cprint(COUNTDOWN_MSG, 'yellow', 'on_grey')
 
+# Returns the length of the longer sequence of two
 def longer_len(str1, str2):
     if len(str1) >= len(str2):
         return len(str1)
     else:
         return len(str2)
 
-def markup_scoring(correct, user, num_incorrect):
+# Takes a correct sentecne and a user input and marks up differences in the user input
+def markup_scoring(correct, user):
     adj_user = []
+    # Compare correct & user and format character by character
     for cindex, char in enumerate(correct):
         try:
+            # Format correct characters in green
             if char == user[cindex]:
                 adj_user.append(colored(user[cindex], 'green', 'on_grey'))
             else:
+                # Change background colour for incorrect spaces for visibility
                 if user[cindex] == ' ':
                     adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
+                # Format incorrect characters in red
                 else:
                     adj_user.append(colored(user[cindex], 'red', 'on_grey', attrs = ['bold']))
+        # If len(correct) > len(user), the rest of the user input must be incorrect
         except:
             adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
+    # Logic for when the user has entered too many characters
     if len(user) > len(correct):
         for i in range(cindex + 1, len(user)):
             if user[i] == ' ':
                 adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
             else:
                 adj_user.append(colored(user[i], 'red', 'on_grey', attrs = ['bold']))
+    # Print sentences
     print('Given Sentence: ' + colored(correct, 'white', 'on_grey'))
     print('What you wrote: ' + ''.join(adj_user))
 
+# Main execution for quick play
 def quickplay():
     play = True
-    tprint('Let\s Play!')
+    tprint('Let\'s Play!')
     while play:
         total_time_sec = 0
         total_correct_chars = 0
         total_incorrect_chars = 0
+        sentence_list = SENTENCE_LIST
         try:
-            sess_sentences = random.sample(pangrams.pangrams, GAMELENGTH)
+            sess_sentences = random.sample(sentence_list, GAMELENGTH)
         except:
-            sess_sentences = random.sample(pangrams.pangrams, len(pangrams.pangrams))
+            sess_sentences = random.sample(sentence_list, len(pangrams.pangrams))
         sess_len = len(sess_sentences)
         for sindex, sentence in enumerate(sess_sentences, 1):
             tinput(f'Press ENTER when ready')
@@ -190,21 +212,39 @@ Reminder that your available commands are:
 ''')
 
 def help():
-    tprint('')
+    tprint('help content')
     tinput('Press ENTER to return to the main menu')
 
 def app_exit():
     tprint('Thanks for playing!')
     exit()
 
-# main program flow
-welcome_msg()
-while True:
-    mm_msg()
-    user_in = tinput('Input Command: ').lower().strip()
-    if user_in in MENU_ALIASES:
-        eval(f'{MENU_ALIASES[user_in]}()')
+def main():
+    welcome_msg()
+    while True:
+        mm_msg()
+        user_in = tinput('Input Command: ').lower().strip()
+        if user_in in MENU_ALIASES:
+            eval(f'{MENU_ALIASES[user_in]}()')
+        else:
+            tprint('Sorry, I didn\'t understand. Could you rephrase that?')
+
+# main program flow with sys.argv tests
+# 'normal' run
+if len(sys.argv) == 1:
+    main()
+elif len(sys.argv) > 2:
+    print('./main.py only takes 1 argument. Please use --help or refer to README.md for help.')
+else:
+    if sys.argv[1] == '--debug':
+        APPNAME = 'Terminal Typing Test: Testing Tool'
+        GAMELENGTH = 3
+        COUNTDOWN_TIMER = SPEECH_DELAY = PAUSE_DELAY = 0
+        SENTENCE_LIST = pangrams.pangrams_test
+        main()
+    elif sys.argv[1] == '--help':
+        print('--help content')
     else:
-        tprint('Sorry, I didn\'t understand. Could you rephrase that?')
+        print('Valid arguments to ./main.py are: --debug & --help')
     
 

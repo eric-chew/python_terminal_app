@@ -32,8 +32,10 @@ pangrams = [
     'This Pangram contains four a\'s, one b, two c\'s, one d, thirty e\'s, six f\'s, five g\'s, seven h\'s, eleven i\'s, one j, one k, two l\'s, two m\'s, eighteen n\'s, fifteen o\'s, two p\'s, one q, five r\'s, twenty-seven s\'s, eighteen t\'s, two u\'s, seven v\'s, eight w\'s, two x\'s, three y\'s, & one z'
 ]
 
-pangrams_test = ['123',
-    '1234',
+
+
+pangrams_test = ['12345',
     '12345',
-    '123456'
+    '12345',
+    '12345'
 ]
