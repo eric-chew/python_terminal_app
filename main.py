@@ -129,7 +129,7 @@ def markup_scoring(correct, user):
         # If len(correct) > len(user), the rest of the user input must be incorrect
         except:
             adj_user.append(colored(' ', 'red', 'on_red', attrs = ['bold']))
-    # Logic for when the user has entered too many characters
+    # Extra logic for when the user has entered too many characters
     if len(user) > len(correct):
         for i in range(cindex + 1, len(user)):
             if user[i] == ' ':
@@ -145,16 +145,23 @@ def quickplay():
     play = True
     tprint('Let\'s Play!')
     while play:
+        # Initialise variables to measure session scores
         total_time_sec = 0
         total_correct_chars = 0
         total_incorrect_chars = 0
+        # Choose sentence source
         sentence_list = SENTENCE_LIST
         try:
+            # Create randomised sublist from source
             sess_sentences = random.sample(sentence_list, GAMELENGTH)
         except:
-            sess_sentences = random.sample(sentence_list, len(pangrams.pangrams))
+            # Handle case where number of source sentences < game length
+            sess_sentences = random.sample(sentence_list, len(sentence_list))
         sess_len = len(sess_sentences)
+
+        # Loop through sublist
         for sindex, sentence in enumerate(sess_sentences, 1):
+            # Prompt user to start timer
             tinput(f'Press ENTER when ready')
             countdown(COUNTDOWN_TIMER)
             seg_start = time.time()
@@ -165,25 +172,38 @@ def quickplay():
             user_type = input('')
             seg_end = time.time()
             seg_time = seg_end - seg_start
+
+            # Compare sentence to user input charactr by character
             for cindex, char in enumerate(sentence):
                 try:
                     if char == user_type[cindex]:
                         sentence_correct_chars += 1
                     else:
                         sentence_incorrect_chars += 1
+                # Handle case where user input is shorter than the sentence
                 except:
                     sentence_incorrect_chars += 1
+
+            # Handle case where user input is longer than the sentence
             if sentence_length < len(user_type):
                 sentence_incorrect_chars += len(user_type) - sentence_length
+            
+            # Calculate and display sentence accuracy
             sentence_accuracy = sentence_correct_chars / (sentence_correct_chars + sentence_incorrect_chars)
             tprint_float(f'This sentence was typed with {(sentence_accuracy * 100):.02f}% accuracy!')
             total_time_sec += seg_time
             total_correct_chars += sentence_correct_chars
             total_incorrect_chars += sentence_incorrect_chars
+
+            # Display differences if the input was incorrect
             if sentence_incorrect_chars > 0:
                 markup_scoring(sentence, user_type)
+
+            # Prompt user for ready check after last sentence
             if sindex == sess_len:
                 tinput(f'Press ENTER to continue to results')
+
+        # Calculate and display scores
         total_time_min = total_time_sec / 60
         cpm = total_correct_chars / total_time_min
         wpm = cpm / CPW
@@ -191,6 +211,8 @@ def quickplay():
         thinking('Great work! Calculating Performance', COUNTDOWN_TIMER)
         tprint_float(f'Your typing speed is {wpm:.02f}WPM (words per minute)!')
         tprint_float(f'Your overall accuracy was {(overall_accuracy * 100):.02f}%!')
+        
+        # Replay or navigate back to menu
         while True:
             next = tinput('''Would you like to:
 1. Play Again
@@ -202,6 +224,7 @@ def quickplay():
             except:
                 tprint('Sorry, I didn\'t understand. Could you rephrase that?')
 
+# Print main menu reminder message
 def mm_msg():
     tprint_float(
 f'''This is the main menu
@@ -211,14 +234,17 @@ Reminder that your available commands are:
 3. Exit: Exits program
 ''')
 
+# Print help menu and prompt to return to main menu
 def help():
     tprint('help content')
     tinput('Press ENTER to return to the main menu')
 
+# Exit app with farewell
 def app_exit():
     tprint('Thanks for playing!')
     exit()
 
+# Main program flow
 def main():
     welcome_msg()
     while True:
@@ -229,21 +255,29 @@ def main():
         else:
             tprint('Sorry, I didn\'t understand. Could you rephrase that?')
 
-# main program flow with sys.argv tests
+# main program flow with command line argument tests
+
 # 'normal' run
 if len(sys.argv) == 1:
     main()
+
+# Handle too many arguments
 elif len(sys.argv) > 2:
-    print('./main.py only takes 1 argument. Please use --help or refer to README.md for help.')
+    print('./main.py takes at most 1 argument. Please use --help or refer to README.md for help.')
+
+# Dev options
 else:
-    if sys.argv[1] == '--debug':
+    # debug mode with delays/timers removed for faster program execution
+    if sys.argv[1].lower().strip() == '--debug':
         APPNAME = 'Terminal Typing Test: Testing Tool'
         GAMELENGTH = 3
         COUNTDOWN_TIMER = SPEECH_DELAY = PAUSE_DELAY = 0
         SENTENCE_LIST = pangrams.pangrams_test
         main()
-    elif sys.argv[1] == '--help':
+    # program help
+    elif sys.argv[1].lower().strip() == '--help':
         print('--help content')
+    # Handle invalid arguments
     else:
         print('Valid arguments to ./main.py are: --debug & --help')
     
