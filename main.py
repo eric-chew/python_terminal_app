@@ -236,7 +236,28 @@ Reminder that your available commands are:
 
 # Print help menu and prompt to return to main menu
 def help():
-    tprint('help content')
+    tprint(f'''Hi! I'm {APPNAME}!
+I'm a terminal application designed to help you test your speed and accuracy when you type.
+I have three options in my main menu:
+
+1. Quickplay
+   This is where you take the test!
+   I'll give you five sentences from my giant brain and all you have to do is repeat them to me!
+   You'll be timed, but don't worry, I'll only start the timer when you tell me you're ready by pressing the ENTER key.
+   Remember that your accuracy is important and that case, whitespaces and punctuation matter!
+   
+2. Help
+   This is it! You can always access this help menu from the main menu in case you need a reminder about the menu items.
+   
+3. Exit
+   When you're done with the app, you can exit the program from here.
+   Hopefully I'll see you again soon!
+   
+Colour Coding
+Yellow: Yellow text means I'm talking. Just wait for what I have to say please.
+Cyan: This means I'm waiting for you to respond!
+White: This is the sentence I want you to type during the test!
+''')
     tinput('Press ENTER to return to the main menu')
 
 # Exit app with farewell
@@ -268,6 +289,7 @@ elif len(sys.argv) > 2:
 # Dev options
 else:
     # debug mode with delays/timers removed for faster program execution
+    # sentence prompts will always be the string '12345'
     if sys.argv[1].lower().strip() == '--debug':
         APPNAME = 'Terminal Typing Test: Testing Tool'
         GAMELENGTH = 3
@@ -276,7 +298,13 @@ else:
         main()
     # program help
     elif sys.argv[1].lower().strip() == '--help':
-        print('--help content')
+        print('''Terminal Typing Test is a program that pits the user against pangrams to measure their typing speed and accuracy
+More instructions can be accessed from the in-app help menu by entering '2' from the main menu.
+
+To run the app you can use one of the following:
+Standard Use - ./main.py
+Testing / Debug Mode - ./main.py --debug)
+''')
     # Handle invalid arguments
     else:
         print('Valid arguments to ./main.py are: --debug & --help')
